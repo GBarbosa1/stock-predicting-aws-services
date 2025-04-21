@@ -66,7 +66,12 @@ def run_athena_query_df(
 # Example usage
 if __name__ == "__main__":
     df = run_athena_query_df(
-        query="SELECT 1",
+        query="""
+        select distinct
+        partition_0
+        from s3silver_finance_data
+        where cast(date_capture as date) >= date_add('day',-5,cast(date_capture as date));
+        """,
         database="s3silver_finance_data",
         output_s3_path="s3://silver-finance-data/athena_querie_results/",
         region="us-east-1"
