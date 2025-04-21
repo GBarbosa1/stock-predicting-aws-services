@@ -69,7 +69,7 @@ if __name__ == "__main__":
         query="""
         select distinct
         partition_0
-        from s3silver_finance_data
+        from finance.s3silver_finance_data
         where cast(date_capture as date) >= date_add('day',-5,cast(date_capture as date));
         """,
         database="s3silver_finance_data",
