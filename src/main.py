@@ -66,7 +66,7 @@ def run_athena_query_df(
 # Example usage
 if __name__ == "__main__":
     df = run_athena_query_df(
-        query="SELECT * FROM my_table LIMIT 10",
+        query="SELECT 1",
         database="s3silver_finance_data",
         output_s3_path="s3://silver-finance-data/athena_querie_results/",
         region="us-east-1"
