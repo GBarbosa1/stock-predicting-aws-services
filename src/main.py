@@ -49,5 +49,5 @@ if __name__ == "__main__":
         output_s3_path="s3://silver-finance-data/athena_querie_results/",
         region="us-east-1"
     )
-    for index, rows in tickers_to_query.iterrows()
+    for index, rows in tickers_to_query.iterrows():
         print(rows)
