@@ -97,5 +97,6 @@ if __name__ == "__main__":
             region="us-east-1"
         )
         data = create_features(data)
+        print(data)
 
 
