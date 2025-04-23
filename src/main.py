@@ -50,4 +50,19 @@ if __name__ == "__main__":
         region="us-east-1"
     )
     for index, rows in tickers_to_query.iterrows():
-        print(rows)
+        ticker = rows['partition_0']
+        data = run_athena_query_df(
+            query=f"""
+            select *
+            from finance.s3silver_finance_data
+            where 1 = 1
+            and partition_0 = '{ticker}'
+            and cast(date_capture as date) >= date_add('day',-30,current_date)
+            order by cast(date_capture as date) desc
+            limit 10;
+            """,
+            database="s3silver_finance_data",
+            output_s3_path="s3://silver-finance-data/athena_querie_results/",
+            region="us-east-1"
+        )
+
