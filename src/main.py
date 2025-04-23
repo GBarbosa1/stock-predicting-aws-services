@@ -1,14 +1,14 @@
 import boto3
 import pandas as pd
 import time
+import ta
 
 def run_athena_query_df(
     query: str,
     database: str,
     output_s3_path: str,
     region: str = "us-east-1",
-    poll_interval: float = 2.0
-) -> pd.DataFrame:
+    poll_interval: float = 2.0) -> pd.DataFrame:
     
     athena = boto3.client("athena", region_name=region)
     resp = athena.start_query_execution(
@@ -35,6 +35,37 @@ def run_athena_query_df(
 
     header, data = rows[0], rows[1:]
     df = pd.DataFrame(data, columns=header)
+    return df
+
+def create_features(df):
+    feature_columns = [
+    'Open', 'High', 'Low', 'Close', 'Volume',
+    'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
+    'MACD', 'MACD_Signal', 'RSI',
+    'Stochastic_K', 'Stochastic_D',
+    'ATR']
+    df['SMA_10'] = trend.sma_indicator(df['Close'], window=10)
+    df['SMA_50'] = trend.sma_indicator(df['Close'], window=50)
+    df['EMA_10'] = trend.ema_indicator(df['Close'], window=10)
+    df['EMA_50'] = trend.ema_indicator(df['Close'], window=50)
+    df['MACD'] = trend.macd(df['Close'])
+    df['MACD_Signal'] = trend.macd_signal(df['Close'])
+    df['RSI'] = momentum.rsi(df['Close'], window=14)
+    df['Stochastic_K'] = momentum.stoch(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
+    df['Stochastic_D'] = momentum.stoch_signal(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
+    df['ATR'] = volatility.average_true_range(df['High'], df['Low'], df['Close'], window=14)
+    df['Bollinger_High'] = volatility.bollinger_hband(df['Close'], window=20, window_dev=2)
+    df['Bollinger_Low'] = volatility.bollinger_lband(df['Close'], window=20, window_dev=2)
+    df.dropna(inplace=True)
+    lag_days = 30
+
+    for lag in range(1, lag_days + 1):
+        df[f'Close_Lag_{lag}'] = df['Close'].shift(lag)
+
+    for lag in range(1, lag_days + 1):
+        df[f'Volume_Lag_{lag}'] = df['Volume'].shift(lag)
+
+    df['Target'] = df['Close'].shift(-1)
     return df
 
 if __name__ == "__main__":
@@ -65,4 +96,6 @@ if __name__ == "__main__":
             output_s3_path="s3://silver-finance-data/athena_querie_results/",
             region="us-east-1"
         )
+        
+
 
