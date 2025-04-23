@@ -78,13 +78,19 @@ if __name__ == "__main__":
         ticker = rows['partition_0']
         data = run_athena_query_df(
             query=f"""
-            select *
+            select
+            cast(date_capture as date) as date_capture,
+            cast(close as double) as close,
+            cast(high as double) as high,
+            cast(low as double) as high,
+            cast(open as double) as high,
+            partition_0
             from finance.s3silver_finance_data
             where 1 = 1
             and partition_0 = '{ticker}'
             and cast(date_capture as date) >= date_add('day',-30,current_date)
             order by cast(date_capture as date) desc
-            limit 10;
+            limit 10
             """,
             database="s3silver_finance_data",
             output_s3_path="s3://silver-finance-data/athena_querie_results/",
