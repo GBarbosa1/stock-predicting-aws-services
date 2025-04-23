@@ -1,7 +1,7 @@
 import boto3
 import pandas as pd
 import time
-import ta
+from ta import trend, momentum, volatility
 
 def run_athena_query_df(
     query: str,
