@@ -82,8 +82,8 @@ if __name__ == "__main__":
             cast(date_capture as date) as date_capture,
             cast(close as double) as close,
             cast(high as double) as high,
-            cast(low as double) as high,
-            cast(open as double) as high,
+            cast(low as double) as low,
+            cast(open as double) as open,
             partition_0
             from finance.s3silver_finance_data
             where 1 = 1
@@ -96,6 +96,8 @@ if __name__ == "__main__":
             output_s3_path="s3://silver-finance-data/athena_querie_results/",
             region="us-east-1"
         )
+        columns_to_cast = ['close', 'high', 'low','open']
+        data[columns_to_cast] = data[columns_to_cast].astype(float)
         data = create_features(data)
         print(data)
 
