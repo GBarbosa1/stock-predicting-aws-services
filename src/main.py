@@ -80,8 +80,7 @@ if __name__ == "__main__":
     'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
     'MACD', 'MACD_Signal', 'RSI',
     'Stochastic_K', 'Stochastic_D',
-    'ATR', 'Bollinger_High', 'Bollinger_Low'
-]
+    'ATR', 'Bollinger_High', 'Bollinger_Low']
     
     tickers_to_query = run_athena_query_df(
         query="""
@@ -119,5 +118,6 @@ if __name__ == "__main__":
         )
         data[columns_to_cast] = data[feature_columns].astype(float)
         data = create_features(data)
+        print(data.columns)
         make_predictions(data[feature_columns].tail(10), 'src/xgboost/finance_xgboost.json')
         print(make_predictions)
