@@ -48,39 +48,39 @@ def run_athena_query_df(
 def create_features(df):
     df['date_capture'] = pd.to_datetime(df['date_capture'])
     df = df.sort_values(by='date_capture', ascending=True)
-    df['SMA_10'] = trend.sma_indicator(df['close'], window=10)
-    df['SMA_50'] = trend.sma_indicator(df['close'], window=50)
-    df['EMA_10'] = trend.ema_indicator(df['close'], window=10)
-    df['EMA_50'] = trend.ema_indicator(df['close'], window=50)
-    df['MACD'] = trend.macd(df['close'])
-    df['MACD_Signal'] = trend.macd_signal(df['close'])
-    df['RSI'] = momentum.rsi(df['close'], window=14)
-    df['Stochastic_K'] = momentum.stoch(df['high'], df['low'], df['close'], window=14, smooth_window=3)
-    df['Stochastic_D'] = momentum.stoch_signal(df['high'], df['low'], df['close'], window=14, smooth_window=3)
-    df['ATR'] = volatility.average_true_range(df['high'], df['low'], df['close'], window=14)
-    df['Bollinger_high'] = volatility.bollinger_hband(df['close'], window=20, window_dev=2)
-    df['Bollinger_low'] = volatility.bollinger_lband(df['close'], window=20, window_dev=2)
+    df['SMA_10'] = trend.sma_indicator(df['Close'], window=10)
+    df['SMA_50'] = trend.sma_indicator(df['Close'], window=50)
+    df['EMA_10'] = trend.ema_indicator(df['Close'], window=10)
+    df['EMA_50'] = trend.ema_indicator(df['Close'], window=50)
+    df['MACD'] = trend.macd(df['Close'])
+    df['MACD_Signal'] = trend.macd_signal(df['Close'])
+    df['RSI'] = momentum.rsi(df['Close'], window=14)
+    df['Stochastic_K'] = momentum.stoch(df['high'], df['Low'], df['Close'], window=14, smooth_window=3)
+    df['Stochastic_D'] = momentum.stoch_signal(df['high'], df['Low'], df['Close'], window=14, smooth_window=3)
+    df['ATR'] = volatility.average_true_range(df['high'], df['Low'], df['Close'], window=14)
+    df['Bollinger_high'] = volatility.bollinger_hband(df['Close'], window=20, window_dev=2)
+    df['Bollinger_Low'] = volatility.bollinger_lband(df['Close'], window=20, window_dev=2)
     
 
     df.dropna(inplace=True)
     lag_days = 30
 
     for lag in range(1, lag_days + 1):
-        df[f'close_Lag_{lag}'] = df['close'].shift(lag)
+        df[f'Close_Lag_{lag}'] = df['Close'].shift(lag)
 
     for lag in range(1, lag_days + 1):
-        df[f'Volume_Lag_{lag}'] = df['volume'].shift(lag)
+        df[f'Volume_Lag_{lag}'] = df['Volume'].shift(lag)
 
-    df['target'] = df['close'].shift(-1)
+    df['target'] = df['Close'].shift(-1)
     return df
 
 if __name__ == "__main__":
     feature_columns = [
-    'open', 'high', 'low', 'close', 'volume',
+    'open', 'high', 'Low', 'Close', 'Volume',
     'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
     'MACD', 'MACD_Signal', 'RSI',
     'Stochastic_K', 'Stochastic_D',
-    'ATR', 'Bollinger_high', 'Bollinger_low']
+    'ATR', 'Bollinger_High', 'Bollinger_Low']
     
     tickers_to_query = run_athena_query_df(
         query="""
