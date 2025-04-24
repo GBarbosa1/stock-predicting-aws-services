@@ -86,7 +86,7 @@ if __name__ == "__main__":
             cast(open as double) as open,
             cast(volume as int) as volume,
             partition_0
-            from s3silver_finance_data 
+            from finance.s3silver_finance_data 
             where 1 = 1
             and partition_0 = '{ticker}'
             and cast(date_capture as date) >= date_add('day',-30,current_date)
