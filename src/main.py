@@ -2,6 +2,14 @@ import boto3
 import pandas as pd
 import time
 from ta import trend, momentum, volatility
+from sklearn.datasets import make_classification
+from xgboost import XGBClassifier
+
+def make_predictions(df, model):
+    loaded_model = XGBClassifier()
+    loaded_model.load_model(model)
+    predictions = loaded_model.predict(df)
+    return predictions
 
 def run_athena_query_df(
     query: str,
@@ -104,7 +112,8 @@ if __name__ == "__main__":
         columns_to_cast = ['close', 'high', 'low','open']
         data[columns_to_cast] = data[columns_to_cast].astype(float)
         data = create_features(data)
-        print(data.head(10))
-        print(data.tail(10))
+        make_predictions(data[features].tail(10), 'src/xgboost/finance_xgboost.json')
+        print(make_predictions)
+
 
 
