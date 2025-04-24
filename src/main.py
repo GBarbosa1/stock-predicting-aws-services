@@ -58,7 +58,7 @@ def create_features(df):
     df['Stochastic_K'] = momentum.stoch(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
     df['Stochastic_D'] = momentum.stoch_signal(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
     df['ATR'] = volatility.average_true_range(df['High'], df['Low'], df['Close'], window=14)
-    df['Bollinger_high'] = volatility.bollinger_hband(df['Close'], window=20, window_dev=2)
+    df['Bollinger_High'] = volatility.bollinger_hband(df['Close'], window=20, window_dev=2)
     df['Bollinger_Low'] = volatility.bollinger_lband(df['Close'], window=20, window_dev=2)
     
 
