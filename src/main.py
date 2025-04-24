@@ -117,9 +117,9 @@ if __name__ == "__main__":
             region="us-east-1"
         )
         print(data.columns)
-        data[columns_to_cast] = data['Close','High','Low','Volume'].astype(float)
+        data['Close','High','Low','Open','Volume'] = data['Close','High','Low','Open','Volume'].astype(float)
         data = create_features(data)
-        data[columns_to_cast] = data[feature_columns].astype(float)
+        data[feature_columns] = data[feature_columns].astype(float)
         print(data.columns)
         make_predictions(data[feature_columns].tail(10), 'src/xgboost/finance_xgboost.json')
         print(make_predictions)
