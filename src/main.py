@@ -95,7 +95,7 @@ if __name__ == "__main__":
             and partition_0 = '{ticker}'
             and cast(date_capture as date) >= date_add('day',-30,current_date)
             order by cast(date_capture as date) desc
-            limit 15;
+            limit 40;
             """,
             database="s3silver_finance_data",
             output_s3_path="s3://silver-finance-data/athena_querie_results/",
