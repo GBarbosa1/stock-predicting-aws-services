@@ -116,6 +116,7 @@ if __name__ == "__main__":
             output_s3_path="s3://silver-finance-data/athena_querie_results/",
             region="us-east-1"
         )
+        print(data.columns)
         data[columns_to_cast] = data[feature_columns].astype(float)
         data = create_features(data)
         print(data.columns)
