@@ -38,6 +38,7 @@ def run_athena_query_df(
     return df
 
 def create_features(df):
+    df = df.sort_values(by='date_capture', ascending=True)
     df['SMA_10'] = trend.sma_indicator(df['close'], window=10)
     df['SMA_50'] = trend.sma_indicator(df['close'], window=50)
     df['EMA_10'] = trend.ema_indicator(df['close'], window=10)
@@ -50,6 +51,8 @@ def create_features(df):
     df['ATR'] = volatility.average_true_range(df['high'], df['low'], df['close'], window=14)
     df['Bollinger_high'] = volatility.bollinger_hband(df['close'], window=20, window_dev=2)
     df['Bollinger_low'] = volatility.bollinger_lband(df['close'], window=20, window_dev=2)
+    df['date_capture'] = pd.to_datetime(df['date_capture'])
+
     df.dropna(inplace=True)
     lag_days = 30
 
