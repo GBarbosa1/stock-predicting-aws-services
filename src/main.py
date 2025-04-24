@@ -116,8 +116,7 @@ if __name__ == "__main__":
             output_s3_path="s3://silver-finance-data/athena_querie_results/",
             region="us-east-1"
         )
-        columns_to_cast = ['close', 'high', 'low','open']
-        data[columns_to_cast] = data[columns_to_cast].astype(float)
+        data[columns_to_cast] = data[feature_columns].astype(float)
         data = create_features(data)
         make_predictions(data[feature_columns].tail(10), 'src/xgboost/finance_xgboost.json')
         print(make_predictions)
