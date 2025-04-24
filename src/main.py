@@ -55,9 +55,9 @@ def create_features(df):
     df['MACD'] = trend.macd(df['Close'])
     df['MACD_Signal'] = trend.macd_signal(df['Close'])
     df['RSI'] = momentum.rsi(df['Close'], window=14)
-    df['Stochastic_K'] = momentum.stoch(df['high'], df['Low'], df['Close'], window=14, smooth_window=3)
-    df['Stochastic_D'] = momentum.stoch_signal(df['high'], df['Low'], df['Close'], window=14, smooth_window=3)
-    df['ATR'] = volatility.average_true_range(df['high'], df['Low'], df['Close'], window=14)
+    df['Stochastic_K'] = momentum.stoch(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
+    df['Stochastic_D'] = momentum.stoch_signal(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
+    df['ATR'] = volatility.average_true_range(df['High'], df['Low'], df['Close'], window=14)
     df['Bollinger_high'] = volatility.bollinger_hband(df['Close'], window=20, window_dev=2)
     df['Bollinger_Low'] = volatility.bollinger_lband(df['Close'], window=20, window_dev=2)
     
@@ -100,11 +100,11 @@ if __name__ == "__main__":
             query=f"""
             select
             cast(date_capture as date) as date_capture,
-            cast(close as double) as close,
-            cast(high as double) as high,
-            cast(low as double) as low,
-            cast(open as double) as open,
-            cast(volume as int) as volume,
+            cast(close as double) as Close,
+            cast(high as double) as High,
+            cast(low as double) as Low,
+            cast(open as double) as Open,
+            cast(volume as int) as Volume,
             partition_0
             from finance.s3silver_finance_data 
             where 1 = 1
