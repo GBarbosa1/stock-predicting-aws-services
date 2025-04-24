@@ -99,10 +99,10 @@ if __name__ == "__main__":
             query=f"""
             select
             cast(date_capture as date) as date_capture,
-            cast(close as double) as Close,
+            cast(open as double) as Open,
             cast(high as double) as High,
             cast(low as double) as Low,
-            cast(open as double) as Open,
+            cast(close as double) as Close,
             cast(volume as int) as Volume
             from finance.s3silver_finance_data 
             where 1 = 1
@@ -120,5 +120,6 @@ if __name__ == "__main__":
         data = create_features(data)
         data[feature_columns] = data[feature_columns].astype(float)
         print(data.columns)
+        data.drop(columns=['date_capture'])
         make_predictions(data[feature_columns].tail(10), 'src/xgboost/finance_xgboost.json')
         print(make_predictions)
