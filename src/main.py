@@ -94,7 +94,7 @@ if __name__ == "__main__":
             where 1 = 1
             and partition_0 = '{ticker}'
             and cast(date_capture as date) >= date_add('day',-360,current_date)
-            order by cast(date_capture as date) asc
+            order by cast(date_capture as date) desc
             limit 120;
             """,
             database="s3silver_finance_data",
