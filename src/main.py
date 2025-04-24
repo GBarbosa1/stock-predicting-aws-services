@@ -115,7 +115,8 @@ if __name__ == "__main__":
             output_s3_path="s3://silver-finance-data/athena_querie_results/",
             region="us-east-1"
         )
-        print(data.columns)
+        numeric_cols = ['Close', 'High', 'Low', 'Open', 'Volume']
+        data[numeric_cols] = data[numeric_cols].apply(pd.to_numeric, errors='coerce').astype(float)
         data = create_features(data)
         data[feature_columns] = data[feature_columns].astype(float)
         print(data.columns)
