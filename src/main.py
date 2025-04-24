@@ -93,9 +93,9 @@ if __name__ == "__main__":
             from finance.s3silver_finance_data 
             where 1 = 1
             and partition_0 = '{ticker}'
-            and cast(date_capture as date) >= date_add('day',-90,current_date)
+            and cast(date_capture as date) >= date_add('day',-360,current_date)
             order by cast(date_capture as date) asc
-            limit 40;
+            limit 120;
             """,
             database="s3silver_finance_data",
             output_s3_path="s3://silver-finance-data/athena_querie_results/",
