@@ -76,11 +76,12 @@ def create_features(df):
 
 if __name__ == "__main__":
     feature_columns = [
-    'open', 'high', 'Low', 'Close', 'Volume',
+    'Open', 'High', 'Low', 'Close', 'Volume',
     'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
     'MACD', 'MACD_Signal', 'RSI',
     'Stochastic_K', 'Stochastic_D',
-    'ATR', 'Bollinger_High', 'Bollinger_Low']
+    'ATR', 'Bollinger_High', 'Bollinger_Low'
+]
     
     tickers_to_query = run_athena_query_df(
         query="""
