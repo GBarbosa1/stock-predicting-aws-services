@@ -103,8 +103,7 @@ if __name__ == "__main__":
             cast(high as double) as High,
             cast(low as double) as Low,
             cast(open as double) as Open,
-            cast(volume as int) as Volume,
-            partition_0
+            cast(volume as int) as Volume
             from finance.s3silver_finance_data 
             where 1 = 1
             and partition_0 = '{ticker}'
@@ -117,7 +116,6 @@ if __name__ == "__main__":
             region="us-east-1"
         )
         print(data.columns)
-        data['Close','High','Low','Open','Volume'] = data['Close','High','Low','Open','Volume'].astype(float)
         data = create_features(data)
         data[feature_columns] = data[feature_columns].astype(float)
         print(data.columns)
