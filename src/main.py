@@ -75,6 +75,13 @@ def create_features(df):
     return df
 
 if __name__ == "__main__":
+    feature_columns = [
+    'ppen', 'high', 'low', 'close', 'volume',
+    'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
+    'MACD', 'MACD_Signal', 'RSI',
+    'stochastic_K', 'Stochastic_D',
+    'ATR', 'Bollinger_High', 'Bollinger_Low']
+    
     tickers_to_query = run_athena_query_df(
         query="""
         select distinct
@@ -112,8 +119,5 @@ if __name__ == "__main__":
         columns_to_cast = ['close', 'high', 'low','open']
         data[columns_to_cast] = data[columns_to_cast].astype(float)
         data = create_features(data)
-        make_predictions(data[features].tail(10), 'src/xgboost/finance_xgboost.json')
+        make_predictions(data[feature_columns].tail(10), 'src/xgboost/finance_xgboost.json')
         print(make_predictions)
-
-
-
