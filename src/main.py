@@ -1,6 +1,7 @@
 import boto3
 import pandas as pd
 import time
+import xgboost as xgb
 from ta import trend, momentum, volatility
 from sklearn.datasets import make_classification
 from xgboost import XGBClassifier
