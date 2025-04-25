@@ -122,5 +122,5 @@ if __name__ == "__main__":
         data = create_features(data)
         data.drop(columns=['date_capture','target'], inplace = True)
         data.apply(pd.to_numeric, errors='coerce').astype(float)
-        make_predictions(data.tail(10), 'src/xgboost/finance_xgboost.json')
-        print(make_predictions)
+        predictions = make_predictions(data.tail(10), 'src/xgboost/finance_xgboost.json')
+        print(predictions)
