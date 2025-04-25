@@ -119,7 +119,8 @@ if __name__ == "__main__":
         data[numeric_cols] = data[numeric_cols].apply(pd.to_numeric, errors='coerce').astype(float)
         data = create_features(data)
         data[feature_columns] = data[feature_columns].astype(float)
-        print(data.columns)
+        
         data.drop(columns=['date_capture','target'])
+        print(data.columns)
         make_predictions(data[feature_columns].tail(10), 'src/xgboost/finance_xgboost.json')
         print(make_predictions)
