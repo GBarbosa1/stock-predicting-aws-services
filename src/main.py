@@ -74,7 +74,7 @@ def create_features(df):
         df[f'Volume_Lag_{lag}'] = df['Volume'].shift(lag)
 
     df['target'] = df['Close'].shift(-1)
-    
+
     feature_columns = [
     'Open', 'High', 'Low', 'Close', 'Volume',
     'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
@@ -85,7 +85,8 @@ def create_features(df):
     for lag in range(1, lag_days + 1):
         feature_columns.append(f'Close_Lag_{lag}')
         feature_columns.append(f'Volume_Lag_{lag}')
-    return df
+
+    return df, feature_columns
 
 if __name__ == "__main__":
     feature_columns = [
@@ -130,9 +131,9 @@ if __name__ == "__main__":
         )
         numeric_cols = ['Close', 'High', 'Low', 'Open', 'Volume']
         data[numeric_cols] = data[numeric_cols].apply(pd.to_numeric, errors='coerce').astype(float)
-        data = create_features(data)
+        data, feature_columns = create_features(data)
         data.drop(columns=['date_capture','target'], inplace = True)
         data.apply(pd.to_numeric, errors='coerce').astype(float)
         print(data.columns)
-        predictions = make_predictions(df = data.tail(10), model = 'src/xgboost/finance_xgboost.json')
+        predictions = make_predictions(df = data[feature_columns].tail(10), model = 'src/xgboost/finance_xgboost.json')
         print(predictions)
