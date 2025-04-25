@@ -120,7 +120,7 @@ if __name__ == "__main__":
         data = create_features(data)
         data[feature_columns] = data[feature_columns].astype(float)
         
-        data.drop(columns=['date_capture','target'])
+        data.drop(columns=['date_capture','target'], inplace = True)
         print(data.columns)
         make_predictions(data[feature_columns].tail(10), 'src/xgboost/finance_xgboost.json')
         print(make_predictions)
