@@ -79,7 +79,7 @@ def create_features(df):
     'Open', 'High', 'Low', 'Close', 'Volume',
     'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
     'MACD', 'MACD_Signal', 'RSI',
-    'Stochastic_K', 'Stochastic_D',
+    'Stochastic_k', 'Stochastic_D',
     'ATR', 'Bollinger_High', 'Bollinger_Low']
 
     for lag in range(1, lag_days + 1):
@@ -134,6 +134,5 @@ if __name__ == "__main__":
         data, feature_columns = create_features(data)
         data.drop(columns=['date_capture','target'], inplace = True)
         data.apply(pd.to_numeric, errors='coerce').astype(float)
-        print(data.columns)
         predictions = make_predictions(df = data[feature_columns].tail(10), model = 'src/xgboost/finance_xgboost.json')
         print(predictions)
