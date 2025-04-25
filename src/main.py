@@ -10,8 +10,7 @@ from xgboost import XGBClassifier
 def make_predictions(df, model):
     loaded_model = XGBClassifier()
     loaded_model.load_model(model)
-    data_to_insert = xgb.DMatrix(df)
-    predictions = loaded_model.predict(np.float32(data_to_insert))
+    predictions = loaded_model.predict(np.float32(df))
     return predictions
 
 def run_athena_query_df(
