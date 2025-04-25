@@ -2,6 +2,7 @@ import boto3
 import pandas as pd
 import time
 import xgboost as xgb
+import numpy as np
 from ta import trend, momentum, volatility
 from sklearn.datasets import make_classification
 from xgboost import XGBClassifier
@@ -10,7 +11,7 @@ def make_predictions(df, model):
     loaded_model = XGBClassifier()
     loaded_model.load_model(model)
     data_to_insert = xgb.DMatrix(df)
-    predictions = loaded_model.predict(data_to_insert)
+    predictions = loaded_model.predict(np.float32(data_to_insert))
     return predictions
 
 def run_athena_query_df(
@@ -120,9 +121,8 @@ if __name__ == "__main__":
         numeric_cols = ['Close', 'High', 'Low', 'Open', 'Volume']
         data[numeric_cols] = data[numeric_cols].apply(pd.to_numeric, errors='coerce').astype(float)
         data = create_features(data)
-        data[feature_columns] = data[feature_columns].astype(float)
-        
         data.drop(columns=['date_capture','target'], inplace = True)
+        data[feature_columns] = data[feature_columns].astype(float)
         print(data.columns)
         make_predictions(data[feature_columns].tail(10), 'src/xgboost/finance_xgboost.json')
         print(make_predictions)
