@@ -10,7 +10,8 @@ from xgboost import XGBClassifier
 def make_predictions(df, model):
     loaded_model = XGBClassifier()
     loaded_model.load_model(model)
-    predictions = loaded_model.predict(np.float32(df))
+    dtest = xgb.DMatrix(df)
+    predictions = loaded_model.predict(dtest)
     return predictions
 
 def run_athena_query_df(
@@ -122,5 +123,5 @@ if __name__ == "__main__":
         data = create_features(data)
         data.drop(columns=['date_capture','target'], inplace = True)
         data.apply(pd.to_numeric, errors='coerce').astype(float)
-        predictions = make_predictions(data.tail(10), 'src/xgboost/finance_xgboost.json')
+        predictions = make_predictions(df = data.tail(10), model = 'src/xgboost/finance_xgboost.json')
         print(predictions)
