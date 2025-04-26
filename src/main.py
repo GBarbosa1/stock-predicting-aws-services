@@ -9,9 +9,10 @@ from xgboost import XGBClassifier
 import pickle
 
 def make_predictions(df, model):
+    dtest = xgb.DMatrix(df)
     loaded_model = XGBClassifier()
     loaded_model = pickle.load(open(file_name, "rb"))
-    predictions = loaded_model.predict(df)
+    predictions = loaded_model.predict(dtest)
     return predictions
 
 def run_athena_query_df(
