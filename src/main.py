@@ -6,10 +6,11 @@ import numpy as np
 from ta import trend, momentum, volatility
 from sklearn.datasets import make_classification
 from xgboost import XGBClassifier
+import pickle
 
 def make_predictions(df, model):
     loaded_model = XGBClassifier()
-    loaded_model.load_model(model)
+    loaded_model = pickle.load(open(file_name, "rb"))
     predictions = loaded_model.predict(df)
     return predictions
 
@@ -72,6 +73,8 @@ def create_features(df):
 
     for lag in range(1, lag_days + 1):
         df[f'Volume_Lag_{lag}'] = df['Volume'].shift(lag)
+
+    df.dropna(inplace=True)
 
     df['target'] = df['Close'].shift(-1)
 
