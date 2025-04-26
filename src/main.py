@@ -83,7 +83,7 @@ def create_features(df):
     'Open', 'High', 'Low', 'Close', 'Volume',
     'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
     'MACD', 'MACD_Signal', 'RSI',
-    'Stochastic_k', 'Stochastic_D',
+    'Stochastic_K', 'Stochastic_D',
     'ATR', 'Bollinger_High', 'Bollinger_Low']
 
     for lag in range(1, lag_days + 1):
