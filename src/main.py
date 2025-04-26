@@ -59,7 +59,7 @@ def create_features(df):
     df['MACD'] = trend.macd(df['Close'])
     df['MACD_Signal'] = trend.macd_signal(df['Close'])
     df['RSI'] = momentum.rsi(df['Close'], window=14)
-    df['Stochastic_k'] = momentum.stoch(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
+    df['Stochastic_K'] = momentum.stoch(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
     df['Stochastic_D'] = momentum.stoch_signal(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
     df['ATR'] = volatility.average_true_range(df['High'], df['Low'], df['Close'], window=14)
     df['Bollinger_High'] = volatility.bollinger_hband(df['Close'], window=20, window_dev=2)
