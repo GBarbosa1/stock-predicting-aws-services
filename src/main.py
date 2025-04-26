@@ -138,5 +138,6 @@ if __name__ == "__main__":
         data, feature_columns = create_features(data)
         data.drop(columns=['date_capture','target'], inplace = True)
         data.apply(pd.to_numeric, errors='coerce').astype(float)
+        print(data[feature_columns].tail(10))
         predictions = make_predictions(df = data[feature_columns].tail(10), model = 'src/xgboost/xgb_fin_model_v1.pkl')
         print(predictions)
