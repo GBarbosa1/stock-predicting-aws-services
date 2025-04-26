@@ -11,7 +11,7 @@ import pickle
 def make_predictions(df, model):
     dtest = xgb.DMatrix(df)
     loaded_model = XGBClassifier()
-    loaded_model = pickle.load(open(file_name, "rb"))
+    loaded_model = pickle.load(open(model, "rb"))
     predictions = loaded_model.predict(dtest)
     return predictions
 
@@ -138,5 +138,5 @@ if __name__ == "__main__":
         data, feature_columns = create_features(data)
         data.drop(columns=['date_capture','target'], inplace = True)
         data.apply(pd.to_numeric, errors='coerce').astype(float)
-        predictions = make_predictions(df = data[feature_columns].tail(10), model = 'src/xgboost/finance_xgboost.json')
+        predictions = make_predictions(df = data[feature_columns].tail(10), model = 'src/xgboost/xgb_fin_model_v1.pkl')
         print(predictions)
