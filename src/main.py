@@ -11,7 +11,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 def make_predictions(df, model):
-    logging.info(fs"Using the following model: {model}")
+    logging.info(f"Using the following model: {model}")
     dtest = xgb.DMatrix(df)
     loaded_model = XGBClassifier()
     loaded_model = pickle.load(open(model, "rb"))
