@@ -10,6 +10,15 @@ import pickle
 import logging
 logging.basicConfig(level=logging.INFO)
 
+def get_next_weekdays(start_date, num_days):
+    days = []
+    current_day = start_date
+    while len(days) < num_days:
+        if current_day.weekday() < 5:  # Monday to Friday
+            days.append(current_day)
+        current_day += timedelta(days=1)
+    return days
+
 def make_predictions(df, model):
     logging.info(f"Using the following model: {model}")
     dtest = xgb.DMatrix(df)
@@ -144,3 +153,22 @@ if __name__ == "__main__":
         print(data[feature_columns].tail(10))
         predictions = make_predictions(df = data[feature_columns].tail(10), model = f'src/xgboost/xgb_fin_model_v1_{ticker}.pkl')
         print(predictions)
+    
+        today = datetime.now().date()
+
+        if today.weekday() == 5:
+            today += timedelta(days=2)
+        elif today.weekday() == 6:
+            today += timedelta(days=1)
+
+        prediction_dates = get_next_weekdays(today, len(predictions))
+
+        # Create DataFrame
+        df_predictions = pd.DataFrame({
+            'Date': prediction_dates,
+            'Predicted_Stock_Price': predictions
+        })
+
+        print(df_predictions)
+
+
