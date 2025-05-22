@@ -177,7 +177,7 @@ if __name__ == "__main__":
             'PRICE_PREDICTION': predictions,
             'CAPTURE': today
         })
-        json_list = df.apply(lambda row: {
+        json_list = df_predictions.apply(lambda row: {
         'date': row['DATE'],
         'price_prediction': row['PRICE_PREDICTION'],
         'capture': row['CAPTURE']
