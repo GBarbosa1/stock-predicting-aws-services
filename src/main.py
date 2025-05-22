@@ -9,6 +9,7 @@ from xgboost import XGBClassifier
 from datetime import datetime, timedelta
 import pickle
 import logging
+import json
 logging.basicConfig(level=logging.INFO)
 
 def put_files_to_s3(bucketname:str, s3_object_name:str, json_data):
