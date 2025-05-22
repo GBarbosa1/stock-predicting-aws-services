@@ -6,6 +6,7 @@ import numpy as np
 from ta import trend, momentum, volatility
 from sklearn.datasets import make_classification
 from xgboost import XGBClassifier
+from datetime import datetime
 import pickle
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -163,7 +164,6 @@ if __name__ == "__main__":
 
         prediction_dates = get_next_weekdays(today, len(predictions))
 
-        # Create DataFrame
         df_predictions = pd.DataFrame({
             'Date': prediction_dates,
             'Predicted_Stock_Price': predictions
