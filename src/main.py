@@ -151,9 +151,7 @@ if __name__ == "__main__":
         data, feature_columns = create_features(data)
         data.drop(columns=['date_capture','target'], inplace = True)
         data.apply(pd.to_numeric, errors='coerce').astype(float)
-        print(data[feature_columns].tail(10))
         predictions = make_predictions(df = data[feature_columns].tail(10), model = f'src/xgboost/xgb_fin_model_v1_{ticker}.pkl')
-        print(predictions)
     
         today = datetime.now().date()
 
@@ -165,8 +163,9 @@ if __name__ == "__main__":
         prediction_dates = get_next_weekdays(today, len(predictions))
 
         df_predictions = pd.DataFrame({
-            'Date': prediction_dates,
-            'Predicted_Stock_Price': predictions
+            'DATE': prediction_dates,
+            'PRICE_PREDICTION': predictions,
+            'CAPTURE': today
         })
 
         print(df_predictions)
