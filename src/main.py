@@ -165,6 +165,7 @@ if __name__ == "__main__":
         predictions = make_predictions(df = data[feature_columns].tail(10), model = f'src/xgboost/xgb_fin_model_v1_{ticker}.pkl')
     
         today = datetime.now().date()
+        today_string = today.strftime("%Y-%m-%d")
 
         if today.weekday() == 5:
             today += timedelta(days=2)
@@ -176,7 +177,7 @@ if __name__ == "__main__":
         df_predictions = pd.DataFrame({
             'DATE': prediction_dates,
             'PRICE_PREDICTION': predictions,
-            'CAPTURE': today
+            'CAPTURE': today_string
         })
         json_list = df_predictions.apply(lambda row: {
         'date': row['DATE'],
