@@ -6,7 +6,7 @@ import numpy as np
 from ta import trend, momentum, volatility
 from sklearn.datasets import make_classification
 from xgboost import XGBClassifier
-from datetime import datetime
+from datetime import datetime, timedelta
 import pickle
 import logging
 logging.basicConfig(level=logging.INFO)
