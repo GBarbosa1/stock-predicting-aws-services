@@ -11,6 +11,16 @@ import pickle
 import logging
 logging.basicConfig(level=logging.INFO)
 
+def put_files_to_s3(bucketname:str, s3_object_name:str, json_data):
+    s3 = boto3.client('s3')
+    s3.put_object(Bucket=bucketname, Key=object_key, Body=json_str)
+    s3.put_object(
+    Bucket = bucketname,
+    Key = s3_object_name,
+    Body=json_data,
+    ContentType="application/json")
+
+
 def get_next_weekdays(start_date, num_days):
     days = []
     current_day = start_date
@@ -167,7 +177,13 @@ if __name__ == "__main__":
             'PRICE_PREDICTION': predictions,
             'CAPTURE': today
         })
-
-        print(df_predictions)
-
+        json_list = df.apply(lambda row: {
+        'date': row['DATE'],
+        'price_prediction': row['PRICE_PREDICTION'],
+        'capture': row['CAPTURE']
+        }, axis=1).tolist()
+        for index, json_obj in enumerate(json_list):
+            json_str = json.dumps(json_obj)
+            object_key = f'{ticker}_{json_obj['capture']}.json'
+            put_files_to_s3('gold-finance-data',object_key,json_str)
 
