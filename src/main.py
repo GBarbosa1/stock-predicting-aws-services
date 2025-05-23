@@ -184,8 +184,8 @@ if __name__ == "__main__":
             'price_prediction': row['PRICE_PREDICTION'],
             'capture': row['CAPTURE']
         }, axis=1).tolist()
-        print(json_list)
         for index, json_obj in enumerate(json_list):
+            print(json_obj)
             json_str = json.dumps(json_obj)
             capture_date = json_obj['capture']
             object_key = f'{ticker}_{capture_date}.json'
