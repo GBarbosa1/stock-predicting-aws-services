@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import pickle
 import logging
 import json
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 
 def put_files_to_s3(bucketname:str, s3_object_name:str, json_data):
     s3 = boto3.client('s3')
@@ -184,6 +184,7 @@ if __name__ == "__main__":
             'price_prediction': row['PRICE_PREDICTION'],
             'capture': row['CAPTURE']
         }, axis=1).tolist()
+        print(json_list)
         for index, json_obj in enumerate(json_list):
             json_str = json.dumps(json_obj)
             capture_date = json_obj['capture']
