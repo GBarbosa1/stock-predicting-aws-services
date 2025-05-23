@@ -185,9 +185,9 @@ if __name__ == "__main__":
             'capture': row['CAPTURE']
         }, axis=1).tolist()
         for index, json_obj in enumerate(json_list):
-            print(json_obj)
             json_str = json.dumps(json_obj)
             capture_date = json_obj['capture']
-            object_key = f'{ticker}_{capture_date}.json'
+            predict_date = json_obj['date']
+            object_key = f'{ticker}__{capture_date}_{predict_date}.json'
             put_files_to_s3('gold-finance-data',object_key,json_str)
 
