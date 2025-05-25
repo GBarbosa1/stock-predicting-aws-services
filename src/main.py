@@ -18,7 +18,7 @@ def put_files_to_s3(bucketname:str, json_data):
     s3 = boto3.client('s3')
     s3.put_object(
     Bucket = bucketname,
-    Key = uuid.uuid4(),
+    Key = str(uuid.uuid4()),
     Body=json_data,
     ContentType="application/json")
 
