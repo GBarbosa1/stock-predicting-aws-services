@@ -16,7 +16,6 @@ logging.basicConfig(level=logging.ERROR)
 
 def put_files_to_s3(bucketname:str, json_data):
     s3 = boto3.client('s3')
-    s3.put_object(Bucket=bucketname, Key=object_key, Body=json_str)
     s3.put_object(
     Bucket = bucketname,
     Key = uuid.uuid4(),
@@ -191,4 +190,3 @@ if __name__ == "__main__":
             capture_date = json_obj['capture']
             predict_date = json_obj['date']
             put_files_to_s3('gold-finance-data',json_str)
-
