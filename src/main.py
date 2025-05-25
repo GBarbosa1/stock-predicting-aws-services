@@ -1,7 +1,44 @@
 import boto3
 import pandas as pd
 import time
+import xgboost as xgb
+import numpy as np
 from ta import trend, momentum, volatility
+from sklearn.datasets import make_classification
+from xgboost import XGBClassifier
+from datetime import datetime, timedelta
+import pickle
+import logging
+import json
+import uuid
+
+logging.basicConfig(level=logging.ERROR)
+
+def put_files_to_s3(bucketname:str, json_data):
+    s3 = boto3.client('s3')
+    s3.put_object(
+    Bucket = bucketname,
+    Key = str(uuid.uuid4()),
+    Body=json_data,
+    ContentType="application/json")
+
+
+def get_next_weekdays(start_date, num_days):
+    days = []
+    current_day = start_date
+    while len(days) < num_days:
+        if current_day.weekday() < 5:  # Monday to Friday
+            days.append(current_day)
+        current_day += timedelta(days=1)
+    return days
+
+def make_predictions(df, model):
+    logging.info(f"Using the following model: {model}")
+    dtest = xgb.DMatrix(df)
+    loaded_model = XGBClassifier()
+    loaded_model = pickle.load(open(model, "rb"))
+    predictions = loaded_model.predict(dtest)
+    return predictions
 
 def run_athena_query_df(
     query: str,
@@ -38,31 +75,56 @@ def run_athena_query_df(
     return df
 
 def create_features(df):
-    df['SMA_10'] = trend.sma_indicator(df['close'], window=10)
-    df['SMA_50'] = trend.sma_indicator(df['close'], window=50)
-    df['EMA_10'] = trend.ema_indicator(df['close'], window=10)
-    df['EMA_50'] = trend.ema_indicator(df['close'], window=50)
-    df['MACD'] = trend.macd(df['close'])
-    df['MACD_Signal'] = trend.macd_signal(df['close'])
-    df['RSI'] = momentum.rsi(df['close'], window=14)
-    df['Stochastic_K'] = momentum.stoch(df['high'], df['low'], df['close'], window=14, smooth_window=3)
-    df['Stochastic_D'] = momentum.stoch_signal(df['high'], df['low'], df['close'], window=14, smooth_window=3)
-    df['ATR'] = volatility.average_true_range(df['high'], df['low'], df['close'], window=14)
-    df['Bollinger_high'] = volatility.bollinger_hband(df['close'], window=20, window_dev=2)
-    df['Bollinger_low'] = volatility.bollinger_lband(df['close'], window=20, window_dev=2)
+    df['date_capture'] = pd.to_datetime(df['date_capture'])
+    df = df.sort_values(by='date_capture', ascending=True)
+    df['SMA_10'] = trend.sma_indicator(df['Close'], window=10)
+    df['SMA_50'] = trend.sma_indicator(df['Close'], window=50)
+    df['EMA_10'] = trend.ema_indicator(df['Close'], window=10)
+    df['EMA_50'] = trend.ema_indicator(df['Close'], window=50)
+    df['MACD'] = trend.macd(df['Close'])
+    df['MACD_Signal'] = trend.macd_signal(df['Close'])
+    df['RSI'] = momentum.rsi(df['Close'], window=14)
+    df['Stochastic_K'] = momentum.stoch(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
+    df['Stochastic_D'] = momentum.stoch_signal(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
+    df['ATR'] = volatility.average_true_range(df['High'], df['Low'], df['Close'], window=14)
+    df['Bollinger_High'] = volatility.bollinger_hband(df['Close'], window=20, window_dev=2)
+    df['Bollinger_Low'] = volatility.bollinger_lband(df['Close'], window=20, window_dev=2)
+    
+
     df.dropna(inplace=True)
     lag_days = 30
 
     for lag in range(1, lag_days + 1):
-        df[f'close_Lag_{lag}'] = df['close'].shift(lag)
+        df[f'Close_Lag_{lag}'] = df['Close'].shift(lag)
 
     for lag in range(1, lag_days + 1):
-        df[f'Volume_Lag_{lag}'] = df['volume'].shift(lag)
+        df[f'Volume_Lag_{lag}'] = df['Volume'].shift(lag)
 
-    df['target'] = df['close'].shift(-1)
-    return df
+    df.dropna(inplace=True)
+
+    df['target'] = df['Close'].shift(-1)
+
+    feature_columns = [
+    'Open', 'High', 'Low', 'Close', 'Volume',
+    'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
+    'MACD', 'MACD_Signal', 'RSI',
+    'Stochastic_K', 'Stochastic_D',
+    'ATR', 'Bollinger_High', 'Bollinger_Low']
+
+    for lag in range(1, lag_days + 1):
+        feature_columns.append(f'Close_Lag_{lag}')
+        feature_columns.append(f'Volume_Lag_{lag}')
+
+    return df, feature_columns
 
 if __name__ == "__main__":
+    feature_columns = [
+    'Open', 'High', 'Low', 'Close', 'Volume',
+    'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
+    'MACD', 'MACD_Signal', 'RSI',
+    'Stochastic_K', 'Stochastic_D',
+    'ATR', 'Bollinger_High', 'Bollinger_Low']
+    
     tickers_to_query = run_athena_query_df(
         query="""
         select distinct
@@ -80,25 +142,51 @@ if __name__ == "__main__":
             query=f"""
             select
             cast(date_capture as date) as date_capture,
-            cast(close as double) as close,
-            cast(high as double) as high,
-            cast(low as double) as low,
-            cast(open as double) as open,
-            partition_0
-            from finance.s3silver_finance_data
+            cast(open as double) as Open,
+            cast(high as double) as High,
+            cast(low as double) as Low,
+            cast(close as double) as Close,
+            cast(volume as int) as Volume
+            from finance.s3silver_finance_data 
             where 1 = 1
             and partition_0 = '{ticker}'
-            and cast(date_capture as date) >= date_add('day',-30,current_date)
+            and cast(date_capture as date) >= date_add('day',-360,current_date)
             order by cast(date_capture as date) desc
-            limit 15
+            limit 120;
             """,
             database="s3silver_finance_data",
             output_s3_path="s3://silver-finance-data/athena_querie_results/",
             region="us-east-1"
         )
-        columns_to_cast = ['close', 'high', 'low','open']
-        data[columns_to_cast] = data[columns_to_cast].astype(float)
-        data = create_features(data)
-        print(data)
+        numeric_cols = ['Close', 'High', 'Low', 'Open', 'Volume']
+        data[numeric_cols] = data[numeric_cols].apply(pd.to_numeric, errors='coerce').astype(float)
+        data, feature_columns = create_features(data)
+        data.drop(columns=['date_capture','target'], inplace = True)
+        data.apply(pd.to_numeric, errors='coerce').astype(float)
+        predictions = make_predictions(df = data[feature_columns].tail(10), model = f'src/xgboost/xgb_fin_model_v1_{ticker}.pkl')
+    
+        today = datetime.now().date()
+        today_string = today.strftime("%Y-%m-%d")
 
+        if today.weekday() == 5:
+            today += timedelta(days=2)
+        elif today.weekday() == 6:
+            today += timedelta(days=1)
 
+        prediction_dates = get_next_weekdays(today, len(predictions))
+
+        df_predictions = pd.DataFrame({
+            'DATE': prediction_dates,
+            'PRICE_PREDICTION': predictions,
+            'CAPTURE': today_string
+        })
+        json_list = df_predictions.apply(lambda row: {
+            'date': row['DATE'].strftime("%Y-%m-%d"),
+            'price_prediction': row['PRICE_PREDICTION'],
+            'capture': row['CAPTURE']
+        }, axis=1).tolist()
+        for index, json_obj in enumerate(json_list):
+            json_str = json.dumps(json_obj)
+            capture_date = json_obj['capture']
+            predict_date = json_obj['date']
+            put_files_to_s3('gold-finance-data',json_str)
