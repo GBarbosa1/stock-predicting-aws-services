@@ -10,14 +10,16 @@ from datetime import datetime, timedelta
 import pickle
 import logging
 import json
+import uuid
+
 logging.basicConfig(level=logging.ERROR)
 
-def put_files_to_s3(bucketname:str, s3_object_name:str, json_data):
+def put_files_to_s3(bucketname:str, json_data):
     s3 = boto3.client('s3')
     s3.put_object(Bucket=bucketname, Key=object_key, Body=json_str)
     s3.put_object(
     Bucket = bucketname,
-    Key = s3_object_name,
+    Key = uuid.uuid4(),
     Body=json_data,
     ContentType="application/json")
 
@@ -188,6 +190,5 @@ if __name__ == "__main__":
             json_str = json.dumps(json_obj)
             capture_date = json_obj['capture']
             predict_date = json_obj['date']
-            object_key = f'{ticker}__{capture_date}_{predict_date}.json'
-            put_files_to_s3('gold-finance-data',object_key,json_str)
+            put_files_to_s3('gold-finance-data',json_str)
 
