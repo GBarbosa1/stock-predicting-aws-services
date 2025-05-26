@@ -184,7 +184,8 @@ if __name__ == "__main__":
         json_list = df_predictions.apply(lambda row: {
             'date': row['DATE'].strftime("%Y-%m-%d"),
             'price_prediction': row['PRICE_PREDICTION'],
-            'capture': row['CAPTURE']
+            'capture': row['CAPTURE'],
+            'ticker':row['TICKER']
         }, axis=1).tolist()
         for index, json_obj in enumerate(json_list):
             json_str = json.dumps(json_obj)
