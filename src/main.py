@@ -178,7 +178,8 @@ if __name__ == "__main__":
         df_predictions = pd.DataFrame({
             'DATE': prediction_dates,
             'PRICE_PREDICTION': predictions,
-            'CAPTURE': today_string
+            'CAPTURE': today_string,
+            'TICKER': ticker
         })
         json_list = df_predictions.apply(lambda row: {
             'date': row['DATE'].strftime("%Y-%m-%d"),
