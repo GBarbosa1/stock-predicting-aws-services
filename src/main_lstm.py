@@ -12,6 +12,9 @@ from ta import trend, momentum, volatility
 from sklearn.datasets import make_classification
 from xgboost import XGBClassifier
 from datetime import datetime, timedelta
+from tensorflow.keras.models import load_model
+import numpy as np
+
 
 tickers_table = os.environ['tickers_table']
 finance_database = os.environ['finance_database']
@@ -40,10 +43,7 @@ def get_next_weekdays(start_date, num_days):
 
 def make_predictions(df, model):
     logging.info(f"Using the following model: {model}")
-    dtest = xgb.DMatrix(df)
-    loaded_model = XGBClassifier()
-    loaded_model = pickle.load(open(model, "rb"))
-    predictions = loaded_model.predict(dtest)
+    model = load_model(model)
     return predictions
 
 def run_athena_query_df(
@@ -81,46 +81,30 @@ def run_athena_query_df(
     return df
 
 def create_features(df):
-    df['date_capture'] = pd.to_datetime(df['date_capture'])
-    df = df.sort_values(by='date_capture', ascending=True)
-    df['SMA_10'] = trend.sma_indicator(df['Close'], window=10)
-    df['SMA_50'] = trend.sma_indicator(df['Close'], window=50)
-    df['EMA_10'] = trend.ema_indicator(df['Close'], window=10)
-    df['EMA_50'] = trend.ema_indicator(df['Close'], window=50)
-    df['MACD'] = trend.macd(df['Close'])
-    df['MACD_Signal'] = trend.macd_signal(df['Close'])
+    df['SMA_10'] = df['Close'].rolling(window=10).mean()
+    df['SMA_50'] = df['Close'].rolling(window=50).mean()
+    df['EMA_10'] = df['Close'].ewm(span=10, adjust=False).mean()
+    df['EMA_50'] = df['Close'].ewm(span=50, adjust=False).mean()
+    df['MACD'] = df['Close'].ewm(span=12, adjust=False).mean() - df['Close'].ewm(span=26, adjust=False).mean()
+    df['MACD_Signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
     df['RSI'] = momentum.rsi(df['Close'], window=14)
-    df['Stochastic_K'] = momentum.stoch(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
-    df['Stochastic_D'] = momentum.stoch_signal(df['High'], df['Low'], df['Close'], window=14, smooth_window=3)
-    df['ATR'] = volatility.average_true_range(df['High'], df['Low'], df['Close'], window=14)
-    df['Bollinger_High'] = volatility.bollinger_hband(df['Close'], window=20, window_dev=2)
-    df['Bollinger_Low'] = volatility.bollinger_lband(df['Close'], window=20, window_dev=2)
-    
+    df['Stochastic_K'] = ((df['Close'] - df['Low'].rolling(window=14).min()) / (df['High'].rolling(window=14).max() - df['Low'].rolling(window=14).min())) * 100
+    df['Stochastic_D'] = df['Stochastic_K'].rolling(window=3).mean()
+    df['ATR'] = df['High'].rolling(window=14).max() - df['Low'].rolling(window=14).min()
+    df['Bollinger_High'] = df['SMA_10'] + 2 * df['Close'].rolling(window=10).std()
+    df['Bollinger_Low'] = df['SMA_10'] - 2 * df['Close'].rolling(window=10).std()
 
     df.dropna(inplace=True)
-    lag_days = 30
-
-    for lag in range(1, lag_days + 1):
-        df[f'Close_Lag_{lag}'] = df['Close'].shift(lag)
-
-    for lag in range(1, lag_days + 1):
-        df[f'Volume_Lag_{lag}'] = df['Volume'].shift(lag)
-
-    df.dropna(inplace=True)
-
-    df['target'] = df['Close'].shift(-1)
 
     feature_columns = [
-    'Open', 'High', 'Low', 'Close', 'Volume',
-    'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
-    'MACD', 'MACD_Signal', 'RSI',
-    'Stochastic_K', 'Stochastic_D',
-    'ATR', 'Bollinger_High', 'Bollinger_Low']
-
-    for lag in range(1, lag_days + 1):
-        feature_columns.append(f'Close_Lag_{lag}')
-        feature_columns.append(f'Volume_Lag_{lag}')
-
+      'Open', 'High', 'Low', 'Close', 'Volume',
+      'SMA_10', 'SMA_50', 'EMA_10', 'EMA_50',
+      'MACD', 'MACD_Signal', 'RSI',
+      'Stochastic_K', 'Stochastic_D',
+      'ATR', 'Bollinger_High', 'Bollinger_Low']
+    
+    features = df[feature_columns].values
+    scaler_features = MinMaxScaler(feature_range=(0, 1))
     return df, feature_columns
 
 if __name__ == "__main__":
@@ -169,7 +153,7 @@ if __name__ == "__main__":
         data, feature_columns = create_features(data)
         data.drop(columns=['date_capture','target'], inplace = True)
         data.apply(pd.to_numeric, errors='coerce').astype(float)
-        predictions = make_predictions(df = data[feature_columns].tail(10), model = f'src/xgboost/xgb_fin_model_v1_{ticker}.pkl')
+        predictions = make_predictions(df = data[feature_columns].tail(10), model = f'src/lstm/xgb_fin_model_v1_{ticker}.h5')
     
         today = datetime.now().date()
         today_string = today.strftime("%Y-%m-%d")
