@@ -31,6 +31,11 @@ def put_files_to_s3(bucketname:str, json_data):
     Body=json_data,
     ContentType="application/json")
 
+def terminate_self():
+    instance_id = get_instance_id()
+    ec2 = boto3.client('ec2', region_name='us-east-1')
+    ec2.terminate_instances(InstanceIds=[instance_id])
+    print(f"Termination initiated for instance {instance_id}"
 
 def get_next_weekdays(start_date, num_days):
     days = []
@@ -182,3 +187,4 @@ if __name__ == "__main__":
             capture_date = json_obj['capture']
             predict_date = json_obj['date']
             put_files_to_s3('gold-finance-data',json_str)
+        terminate_self()
