@@ -145,7 +145,7 @@ if __name__ == "__main__":
         """,
         database=f"{finance_database}",
         output_s3_path=f"{athena_query_result}",
-        region=f"{us-east-1}"
+        region='us-east-1'
     )
     for index, rows in tickers_to_query.iterrows():
         ticker = rows['partition_0']
@@ -167,7 +167,7 @@ if __name__ == "__main__":
             """,
             database=f"{finance_database}",
             output_s3_path=f"{athena_query_result}",
-            region=f"{us-east-1}"
+            region="us-east-1"
         )
         numeric_cols = ['Close', 'High', 'Low', 'Open', 'Volume']
         data[numeric_cols] = data[numeric_cols].apply(pd.to_numeric, errors='coerce').astype(float)
