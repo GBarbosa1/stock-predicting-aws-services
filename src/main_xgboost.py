@@ -30,7 +30,6 @@ def put_files_to_s3(bucketname:str, json_data):
     ContentType="application/json")
 
 def terminate_self(instance_id):
-    instance_id = instance_id()
     ec2 = boto3.client('ec2', region_name='us-east-1')
     ec2.terminate_instances(InstanceIds=[instance_id])
     print(f"Termination initiated for instance {instance_id}")
