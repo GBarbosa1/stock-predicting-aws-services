@@ -31,8 +31,8 @@ def put_files_to_s3(bucketname:str, json_data):
 
 def terminate_self(instance_id):
     ec2 = boto3.client('ec2', region_name='us-east-1')
-    ec2.terminate_instances(InstanceIds=[instance_id])
-    print(f"Termination initiated for instance {instance_id}")
+    ec2.stop_instances(InstanceIds=[instance_id])
+    print(f"Stop initiated for instance {instance_id}")
 
 def get_next_weekdays(start_date, num_days):
     days = []
