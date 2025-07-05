@@ -17,7 +17,7 @@ tickers_table = os.environ['tickers_table']
 finance_database = os.environ['finance_database']
 athena_query_result = os.environ['athena_query_result']
 region  = os.environ['region']
-instance_id = os.environ['inscance_id']
+instance_id = os.environ['instance_id']
 
 logging.basicConfig(level=logging.ERROR)
 
