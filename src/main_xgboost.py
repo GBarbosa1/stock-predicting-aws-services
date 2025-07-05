@@ -17,6 +17,7 @@ tickers_table = os.environ['tickers_table']
 finance_database = os.environ['finance_database']
 athena_query_result = os.environ['athena_query_result']
 region  = os.environ['region']
+instance_id = os.environ['inscance_id']
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -28,7 +29,7 @@ def put_files_to_s3(bucketname:str, json_data):
     Body=json_data,
     ContentType="application/json")
 
-def terminate_self():
+def terminate_self(instance_id):
     instance_id = get_instance_id()
     ec2 = boto3.client('ec2', region_name='us-east-1')
     ec2.terminate_instances(InstanceIds=[instance_id])
@@ -203,4 +204,4 @@ if __name__ == "__main__":
             capture_date = json_obj['capture']
             predict_date = json_obj['date']
             put_files_to_s3('gold-finance-data',json_str)
-        terminate_self()
+        terminate_self(terminate_self)
