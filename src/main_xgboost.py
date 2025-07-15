@@ -203,4 +203,5 @@ if __name__ == "__main__":
             capture_date = json_obj['capture']
             predict_date = json_obj['date']
             put_files_to_s3('gold-finance-data',json_str)
-        terminate_self(instance_id)
+    
+    terminate_self(instance_id)
