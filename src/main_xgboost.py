@@ -141,7 +141,7 @@ if __name__ == "__main__":
         select distinct
         partition_0
         from {tickers_table}
-        where cast(date_capture as date) >= date_add('day',-5,cast(date_capture as date));
+        where partition_0 not in ('athena_querie_results','athena_query_results','metadata');
         """,
         database=f"{finance_database}",
         output_s3_path=f"{athena_query_result}",
@@ -174,7 +174,7 @@ if __name__ == "__main__":
         data, feature_columns = create_features(data)
         data.drop(columns=['date_capture','target'], inplace = True)
         data.apply(pd.to_numeric, errors='coerce').astype(float)
-        predictions = make_predictions(df = data[feature_columns].tail(10), model = f'src/xgboost/xgb_fin_model_v1_{ticker}.pkl')
+        predictions = make_predictions(df = data[feature_columns].tail(10), model = f'src/xgboost/xgb_fin_model_v2_{ticker}.pkl')
     
         today = datetime.now().date()
         today_string = today.strftime("%Y-%m-%d")
